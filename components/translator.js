@@ -10,15 +10,43 @@ const britishOnly = require('./british-only.js');
 class Translator {
 
   translateSpellings(string, locale) {
-    return [[],[]]
+    let spellings = []
+    let replacements = []
+
+    return [spellings,replacements]
   }
 
   translateWords(string, locale) {
-    return [[],[]]
+    let words = []
+    let replacements = []
+
+    return [words,replacements]
   }
   
   translateTimes(string, locale) {
-    return [[],[]]
+    let times = []
+    let replacements = []
+    let AmericanFormat = /[\d]{1,2}:[\d]{2}/gm
+    let BritishFormat = /[\d]{1,2}\.[\d]{2}/gm
+    let stringArray = string.split(' ')
+
+    if (locale === 'american-to-british') {
+      stringArray.forEach(word => {
+        if (word.match(AmericanFormat)) {
+          times.push(word)
+          replacements.push(`<span class="highlight">${word.replace(':', '.')}</span>`)
+        }
+      })
+    } else {
+      stringArray.forEach(word => {
+        if (word.match(BritishFormat)) {
+          times.push(word)
+          replacements.push(`<span class="highlight">${word.replace('.', ':')}</span>`)
+        }
+      })
+    }
+    
+    return [times,replacements]
   }
   
   translateTitles(string, locale) {
