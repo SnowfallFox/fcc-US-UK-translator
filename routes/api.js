@@ -18,13 +18,10 @@ module.exports = function (app) {
       // if locale is not one of the valid pre-defined options
       } else if (!validLocales.includes(locale)) {
         res.json({ error: 'Invalid value for locale field' })
+      } else if (!text || !locale) {
+        res.json({ error: 'Required field(s) missing' })
       } else {
-        // something like:
-        // Translator.translate(string, locale)
-        // (check for words in corresponding dict for translations, make array of words)
-        // for each word, replace in string with translation
-        // if changes made, return string
-        // if no changes made, return false
+        res.json (translator.translate(text, locale))
       }
 
     });
