@@ -20,6 +20,29 @@ class Translator {
     let words = []
     let replacements = []
 
+    console.log('translating words...')
+
+    if (locale === 'american-to-british') {
+      for (let i in americanOnly) {
+        let re = new RegExp(`\\s?(${i})[\\s?|\\W?]`, "gmi");
+        console.log(i, re, string.match(re))
+        if (string.match(re)) {
+          words.push(i)
+          replacements.push(`<span class="highlight">${americanOnly[i]}</span>`)
+        }
+      }
+    } else {
+      for (let i in britishOnly) {
+        let re = new RegExp(`\\s?(${i})[\\s?|\\W?]`, "gmi");
+        console.log(i, re, string.match(re))
+        if (string.match(re)) {
+          words.push(i)
+          replacements.push(`<span class="highlight">${britishOnly[i]}</span>`)
+        }
+      }
+      
+    }
+    console.log(words,replacements)
     return [words,replacements]
   }
   
@@ -99,17 +122,22 @@ class Translator {
           let stringIndex = newString.indexOf(word)
           let listIndex = times.indexOf(word)
           newString[stringIndex] = newTimes[listIndex]
-        } else if (words.includes(word)) {
-          let wordIndex = newString.indexOf(word)
-          let listIndex = words.indexOf(word)
-          newString[wordIndex] = newWords[listIndex]
         } else if (spellings.includes(word)) {
           let stringIndex = newString.indexOf(word)
           let listIndex = spellings.indexOf(word)
           newString[stringIndex] = newSpellings[listIndex]
         }
       })
+
       newString = newString.join(' ')
+
+      for (let i = 0; i < words.length; i += 1) {
+        let re = new RegExp(String.raw`${words[i]}`, "gi");
+        if (newString.toLowerCase().includes(words[i].toLowerCase())) {
+          newString = newString.replace(re, newWords[i])
+        }
+      }
+      console.log(newString)
 
       if (newString === string) {
         return { text:string, translation:'Everything looks good to me!'}
