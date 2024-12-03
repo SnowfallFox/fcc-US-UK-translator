@@ -12,6 +12,24 @@ class Translator {
   translateSpellings(string, locale) {
     let spellings = []
     let replacements = []
+    
+    for (let i in americanToBritishSpelling) {
+      if (locale === 'american-to-british') {
+        let re = new RegExp(`\\s?(${i})[\\s?|\\W?]`, "gmi");
+        if (string.match(re)) {
+          // console.log(i, americanToBritishSpelling[i])
+          spellings.push(i)
+          replacements.push(`<span class="highlight">${americanToBritishSpelling[i]}</span>`)
+        }
+      } else {
+        let re = new RegExp(`\\s?(${americanToBritishSpelling[i]})[\\s?|\\W?]`, "gmi");
+        if (string.match(re)) {
+          // console.log(i, americanToBritishSpelling[i])
+          spellings.push(americanToBritishSpelling[i])
+          replacements.push(`<span class="highlight">${i}</span>`)
+        }
+      }
+    }
 
     return [spellings,replacements]
   }
@@ -25,7 +43,7 @@ class Translator {
     if (locale === 'american-to-british') {
       for (let i in americanOnly) {
         let re = new RegExp(`\\s?(${i})[\\s?|\\W?]`, "gmi");
-        console.log(i, re, string.match(re))
+        // console.log(i, re, string.match(re))
         if (string.match(re)) {
           words.push(i)
           replacements.push(`<span class="highlight">${americanOnly[i]}</span>`)
@@ -34,7 +52,7 @@ class Translator {
     } else {
       for (let i in britishOnly) {
         let re = new RegExp(`\\s?(${i})[\\s?|\\W?]`, "gmi");
-        console.log(i, re, string.match(re))
+        // console.log(i, re, string.match(re))
         if (string.match(re)) {
           words.push(i)
           replacements.push(`<span class="highlight">${britishOnly[i]}</span>`)
@@ -42,7 +60,7 @@ class Translator {
       }
       
     }
-    console.log(words,replacements)
+    // console.log(words,replacements)
     return [words,replacements]
   }
   
