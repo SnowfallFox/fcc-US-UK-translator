@@ -64,26 +64,6 @@ class Translator {
     return [words,replacements]
   }
   
-  translateTimes(string, locale) {
-    let times = []
-    let AmericanFormat = /[\d]{1,2}:[\d]{2}/gm
-    let BritishFormat = /[\d]{1,2}\.[\d]{2}/gm
-
-    if (locale === 'american-to-british') {
-      if (string.match(AmericanFormat)) {
-        console.log(string.match(AmericanFormat))
-        times.push(string.match(AmericanFormat)[0])
-      }
-    } else {
-      if (string.match(BritishFormat)) {
-        console.log(string.match(BritishFormat))
-        times.push(string.match(BritishFormat)[0])
-      }
-    }
-    console.log(times)
-    return times
-  }
-  
   translateTitles(string, locale) {
       let titles = []
       let replacements = []
@@ -123,7 +103,6 @@ class Translator {
     // console.log(string)
     let newString = string.split(' ')
     let [titles, newTitles] = this.translateTitles(string, locale)
-    // let times = this.translateTimes(string, locale)
     let [words, newWords] = this.translateWords(string, locale)
     let [spellings, newSpellings] = this.translateSpellings(string, locale)
     let AmericanFormat = /[\d]{1,2}:[\d]{2}/gm
@@ -138,6 +117,7 @@ class Translator {
           let listIndex = titles.indexOf(word)
           // replace word in string with replacement word and inline HTML
           newString[stringIndex] = newTitles[listIndex]
+        // handles time translations
         } else if (word.match(BritishFormat) && locale === 'british-to-american') {
           let strIndex = newString.indexOf(word)
           word = word.replace(word.match(BritishFormat)[0], `<span class="highlight">${word.match(BritishFormat)[0].replace('.',':')}</span>`)
@@ -146,6 +126,7 @@ class Translator {
           let strIndex = newString.indexOf(word)
           word = word.replace(word.match(AmericanFormat)[0], `<span class="highlight">${word.match(AmericanFormat)[0].replace(':','.')}</span>`)
           newString[strIndex] = word
+        // handles swapping in replacements spellings
         } else if (spellings.includes(word)) {
           let stringIndex = newString.indexOf(word)
           let listIndex = spellings.indexOf(word)
