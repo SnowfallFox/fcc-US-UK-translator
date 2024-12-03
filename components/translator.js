@@ -38,7 +38,7 @@ class Translator {
     let words = []
     let replacements = []
 
-    console.log('translating words...')
+    // console.log('translating words...')
 
     if (locale === 'american-to-british') {
       for (let i in americanOnly) {
@@ -66,66 +66,68 @@ class Translator {
   
   translateTimes(string, locale) {
     let times = []
-    let replacements = []
     let AmericanFormat = /[\d]{1,2}:[\d]{2}/gm
     let BritishFormat = /[\d]{1,2}\.[\d]{2}/gm
-    let stringArray = string.split(' ')
 
     if (locale === 'american-to-british') {
-      stringArray.forEach(word => {
-        if (word.match(AmericanFormat)) {
-          times.push(word)
-          replacements.push(`<span class="highlight">${word.replace(':', '.')}</span>`)
-        }
-      })
+      if (string.match(AmericanFormat)) {
+        console.log(string.match(AmericanFormat))
+        times.push(string.match(AmericanFormat)[0])
+      }
     } else {
-      stringArray.forEach(word => {
-        if (word.match(BritishFormat)) {
-          times.push(word)
-          replacements.push(`<span class="highlight">${word.replace('.', ':')}</span>`)
-        }
-      })
+      if (string.match(BritishFormat)) {
+        console.log(string.match(BritishFormat))
+        times.push(string.match(BritishFormat)[0])
+      }
     }
-    
-    return [times,replacements]
+    console.log(times)
+    return times
   }
   
   translateTitles(string, locale) {
       let titles = []
       let replacements = []
-      
+
       if (locale === 'american-to-british') {
-        // turn file into array of arrays, for each
-        for (let i = 0; i < Object.entries(americanToBritishTitles).length; i += 1) {
-          // if string contains any of the 'keys'
-          if (string.includes(Object.entries(americanToBritishTitles)[i][0])) {
-              // add 'key' to titles list
-              titles.push(Object.entries(americanToBritishTitles)[i][0])
-              // add replacement 'value' with inline HTML to replacements list
-              replacements.push(`<span class="highlight">${Object.entries(americanToBritishTitles)[i][1]}</span>`)
+        for (let i in americanToBritishTitles) {
+          let re = new RegExp(`(${i})`, "gmi");
+          if (string.match(re)) {
+            // console.log(string.match(re))
+            titles.push(string.match(re)[0])
+            if (String(string.match(re)[0]).charAt(0).toUpperCase() === americanToBritishTitles[i][0].toUpperCase()) {
+              replacements.push(`<span class="highlight">${americanToBritishTitles[i][0].toUpperCase() + americanToBritishTitles[i].slice(1)}</span>`)
+            } else {
+              replacements.push(`<span class="highlight">${americanToBritishTitles[i]}</span>`)
+            }
           }
         }
       } else {
-        // turn file into array of arrays, for each
-        for (let i = 0; i < Object.entries(americanToBritishTitles).length; i += 1) {
-          // if string contains any of the 'keys'
-          if (string.includes(Object.entries(americanToBritishTitles)[i][1])) {
-              // add 'key' to titles list
-              titles.push(Object.entries(americanToBritishTitles)[i][1])
-              // add replacement 'value' with inline HTML to replacements list
-              replacements.push(`<span class="highlight">${Object.entries(americanToBritishTitles)[i][0]}</span>`)
+        for (let i in americanToBritishTitles) {
+          let re = new RegExp(`(${americanToBritishTitles[i]})`, "gmi");
+          if (string.match(re)) {
+            titles.push(string.match(re)[0])
+            if (string.match(re)[0][0] === i[0].toUpperCase()) {
+              replacements.push(`<span class="highlight">${i[0].toUpperCase() + i.slice(1)}</span>`)
+            } else {
+              replacements.push(`<span class="highlight">${i}</span>`)
+            }
           }
         }
       }
+      
+      // console.log(titles, replacements)
       return [titles, replacements]
   }
 
   translate(string, locale) {
+    // console.log(string)
     let newString = string.split(' ')
     let [titles, newTitles] = this.translateTitles(string, locale)
-    let [times, newTimes] = this.translateTimes(string, locale)
+    // let times = this.translateTimes(string, locale)
     let [words, newWords] = this.translateWords(string, locale)
     let [spellings, newSpellings] = this.translateSpellings(string, locale)
+    let AmericanFormat = /[\d]{1,2}:[\d]{2}/gm
+    let BritishFormat = /[\d]{1,2}\.[\d]{2}/gm
 
     // for each word in string array
       newString.forEach(word => {
@@ -136,10 +138,14 @@ class Translator {
           let listIndex = titles.indexOf(word)
           // replace word in string with replacement word and inline HTML
           newString[stringIndex] = newTitles[listIndex]
-        } else if (times.includes(word)) {
-          let stringIndex = newString.indexOf(word)
-          let listIndex = times.indexOf(word)
-          newString[stringIndex] = newTimes[listIndex]
+        } else if (word.match(BritishFormat) && locale === 'british-to-american') {
+          let strIndex = newString.indexOf(word)
+          word = word.replace(word.match(BritishFormat)[0], `<span class="highlight">${word.match(BritishFormat)[0].replace('.',':')}</span>`)
+          newString[strIndex] = word
+        } else if (word.match(AmericanFormat) && locale === 'american-to-british') {
+          let strIndex = newString.indexOf(word)
+          word = word.replace(word.match(AmericanFormat)[0], `<span class="highlight">${word.match(AmericanFormat)[0].replace(':','.')}</span>`)
+          newString[strIndex] = word
         } else if (spellings.includes(word)) {
           let stringIndex = newString.indexOf(word)
           let listIndex = spellings.indexOf(word)
@@ -155,7 +161,8 @@ class Translator {
           newString = newString.replace(re, newWords[i])
         }
       }
-      console.log(newString)
+      // console.log(newString)
+      // console.log(`\n`)
 
       if (newString === string) {
         return { text:string, translation:'Everything looks good to me!'}
